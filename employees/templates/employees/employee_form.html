@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}
+    {% if form.instance.pk %}Редактировать сотрудника{% else %}Добавить сотрудника{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center fade-in" style="min-height: 80vh;">
+    <div class="card shadow p-4 rounded-4 w-100" style="max-width: 600px;">
+        <h3 class="mb-4 fw-bold text-center text-primary">
+            {% if form.instance.pk %}
+                ✏️ Редактировать сотрудника
+            {% else %}
+                ➕ Добавить сотрудника
+            {% endif %}
+        </h3>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% if forloop.first %}
+                        {{ field|add_class:"form-control"|attr:"autofocus" }}
+                    {% else %}
+                        {{ field|add_class:"form-control" }}
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary btn-hover-zoom">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+                <button type="submit" class="btn btn-success btn-hover-zoom">
+                    <i class="bi bi-check-circle"></i> Сохранить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

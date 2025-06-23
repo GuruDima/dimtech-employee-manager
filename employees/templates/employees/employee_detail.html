@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Профиль сотрудника{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center fade-in" style="min-height: 80vh;">
+    <div class="card shadow p-4 rounded-4 w-100" style="max-width: 600px;">
+        <h3 class="mb-4 fw-bold text-center text-primary">👤 Профиль сотрудника</h3>
+
+        <div class="text-center mb-3">
+            {% if employee.photo %}
+                <img src="{{ employee.photo.url }}" class="img-thumbnail rounded-circle shadow" style="max-width: 150px;" alt="Фото">
+            {% else %}
+                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center mx-auto shadow" style="width: 150px; height: 150px;">
+                    <i class="bi bi-person-circle fs-1 text-muted"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item"><strong>Имя:</strong> {{ employee.first_name }}</li>
+            <li class="list-group-item"><strong>Фамилия:</strong> {{ employee.last_name }}</li>
+            <li class="list-group-item"><strong>Должность:</strong> {{ employee.position }}</li>
+            <li class="list-group-item"><strong>Уровень:</strong> {{ employee.get_level_display }}</li>
+            <li class="list-group-item"><strong>Оклад:</strong> {{ employee.salary }} ₸</li>
+            <li class="list-group-item"><strong>Email:</strong> {{ employee.email }}</li>
+            <li class="list-group-item"><strong>Телефон:</strong> {{ employee.phone }}</li>
+            <li class="list-group-item"><strong>Дата приёма:</strong> {{ employee.date_hired }}</li>
+        </ul>
+
+        <div class="mt-4 d-flex justify-content-between align-items-center">
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-primary btn-hover-zoom">
+                <i class="bi bi-arrow-left"></i> Назад
+            </a>
+
+            {% if user.is_staff %}
+                <div class="d-flex gap-2">
+                    <a href="{% url 'employees:employee_update' employee.pk %}" class="btn btn-warning btn-hover-zoom">
+                        <i class="bi bi-pencil-square"></i> Редактировать
+                    </a>
+
+                    <!-- Удаление через POST -->
+                    <form method="post" action="{% url 'employees:employee_delete' employee.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-hover-zoom" onclick="return confirm('Вы уверены, что хотите удалить этого сотрудника?')">
+                            <i class="bi bi-trash3"></i> Удалить
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

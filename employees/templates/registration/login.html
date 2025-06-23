@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Вход в аккаунт{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center fade-in" style="min-height: 80vh;">
+    <div class="card shadow p-4 rounded-4 w-100" style="max-width: 500px;">
+        <h3 class="mb-4 fw-bold text-center text-primary">
+            🔐 Вход в аккаунт
+        </h3>
+
+        <form method="post" autocomplete="off" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% if forloop.first %}
+                        {{ field|add_class:"form-control"|attr:"autofocus" }}
+                    {% else %}
+                        {{ field|add_class:"form-control" }}
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary w-100 btn-hover-zoom">
+                <i class="bi bi-box-arrow-in-right"></i> Войти
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            Нет аккаунта? <a href="{% url 'employees:signup' %}">Зарегистрируйтесь</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

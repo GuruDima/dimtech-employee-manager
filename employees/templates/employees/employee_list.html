@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Список сотрудников{% endblock %}
+
+{% block content %}
+<div class="container mt-5 fade-in">
+    <!-- 🔍 Поиск и фильтры -->
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <input type="text" name="q" class="form-control" placeholder="🔎 Поиск по имени или фамилии" value="{{ request.GET.q }}">
+        </div>
+        <div class="col-md-2">
+            <select name="position" class="form-select">
+                <option value="">Все должности</option>
+                {% for position in positions %}
+                    <option value="{{ position }}" {% if request.GET.position == position %}selected{% endif %}>{{ position }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="level" class="form-select">
+                <option value="">Все уровни</option>
+                {% for code, name in levels %}
+                    <option value="{{ code }}" {% if request.GET.level == code %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="sort" class="form-select">
+                <option value="">Сортировка</option>
+                <option value="name_asc" {% if request.GET.sort == "name_asc" %}selected{% endif %}>Имя (А-Я)</option>
+                <option value="name_desc" {% if request.GET.sort == "name_desc" %}selected{% endif %}>Имя (Я-А)</option>
+                <option value="salary_asc" {% if request.GET.sort == "salary_asc" %}selected{% endif %}>Зарплата ↑</option>
+                <option value="salary_desc" {% if request.GET.sort == "salary_desc" %}selected{% endif %}>Зарплата ↓</option>
+                <option value="level_asc" {% if request.GET.sort == "level_asc" %}selected{% endif %}>Уровень Jr→Sr</option>
+                <option value="level_desc" {% if request.GET.sort == "level_desc" %}selected{% endif %}>Уровень Sr→Jr</option>
+                <option value="date_asc" {% if request.GET.sort == "date_asc" %}selected{% endif %}>Старше по дате</option>
+                <option value="date_desc" {% if request.GET.sort == "date_desc" %}selected{% endif %}>Новее по дате</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-outline-primary btn-hover-zoom">Применить</button>
+        </div>
+    </form>
+
+    {% if employees %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for employee in employees %}
+        <div class="col fade-in">
+            <div class="card h-100 shadow-sm border-0 rounded-4 bg-white">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ employee.first_name }} {{ employee.last_name }}</h5>
+                    <p class="card-text"><strong>Должность:</strong> {{ employee.position }}</p>
+                    <p class="card-text"><strong>Оклад:</strong> {{ employee.salary }} ₸</p>
+                    <p class="card-text"><strong>Уровень:</strong> {{ employee.get_level_display }}</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between bg-transparent border-0">
+                    {% if user.is_staff %}
+                        <a href="{% url 'employees:employee_update' employee.pk %}" class="btn btn-sm btn-warning btn-hover-zoom">
+                            <i class="bi bi-pencil-square"></i> Изменить
+                        </a>
+                        <a href="{% url 'employees:employee_delete' employee.pk %}" class="btn btn-sm btn-danger btn-hover-zoom">
+                            <i class="bi bi-trash3"></i> Удалить
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'employees:employee_detail' employee.pk %}" class="btn btn-sm btn-primary btn-hover-zoom">
+                        <i class="bi bi-eye"></i> Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 📄 Пагинация -->
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if employees.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ employees.previous_page_number }}">Назад</a>
+                </li>
+            {% endif %}
+            {% for num in employees.paginator.page_range %}
+                {% if employees.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > employees.number|add:'-3' and num < employees.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if employees.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ employees.next_page_number }}">Вперёд</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    {% else %}
+        <div class="text-center text-muted fade-in mt-5">Ничего не найдено 😢</div>
+    {% endif %}
+</div>
+{% endblock %}
